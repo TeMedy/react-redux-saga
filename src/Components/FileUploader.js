@@ -3,29 +3,36 @@ import { connect } from 'react-redux';
 import * as AllActions from '../actions';
 import { bindActionCreators  } from 'redux';
 
+import ReactUploadFile from 'react-upload-file';
+
 export class FileUploader extends Component{
 
   render(){
-    //const { selectFile } = this.props;
-    console.log(this);
+    const { fileSelect, selectFile } = this.props;
     return(
-      //<div onClick={() => selectFile()} >
+      <div onClick={() => selectFile()} >
         <a className='btn btn-primary'> Select A File </a>
-      //</div>
+        {
+          fileSelect?
+          <div>
+            <h1> A file a selected </h1>
+          </div>
+          : undefined
+        }
+      </div>
     )
   }
 }
 
-function mapStateToProps(state){
+const mapStateToProps = (state) => {
   return{
     fileSelect : state.fileSelect,
     fileUploadStart : state.fileUploadStart
   }
 }
 
-function mapActionCreatorsToProps(dispatch){
+const mapActionCreatorsToProps = (dispatch) => {
   return bindActionCreators(AllActions, dispatch);
 }
 
-
-export default connect(mapStateToProps)(FileUploader);
+export default connect(mapStateToProps, mapActionCreatorsToProps)(FileUploader);

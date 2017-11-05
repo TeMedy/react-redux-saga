@@ -6,7 +6,7 @@ const initialState = {
 }
 
 
-export const fileSelect = (state= initialState, action) =>{
+export const fileSelect = (state = initialState, action) =>{
   switch (action.type){
     case SELECT_FILE:
       return {...state, fileSelect: true};
