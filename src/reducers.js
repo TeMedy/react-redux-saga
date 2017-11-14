@@ -43,7 +43,7 @@ export const fileState = (state = initialState, action) => {
         uploadSuccessful: action.wasSuccessful,
         uploadError: !action.wasSuccessful,
         uploadProgress: undefined,
-        linkToSrc: action.linkToSrc,
+        linkToSrc: action.wasSuccessful? action.linkToSrc: '',
       }
     default:
       return state;

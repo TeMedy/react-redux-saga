@@ -2,20 +2,43 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import * as AllActions from '../actions';
 import { bindActionCreators  } from 'redux';
+
 import { Circle } from 'rc-progress';
+import CanvasCompress from 'canvas-compress';
 
 import Dropzone from 'react-dropzone';
 
 
 class FileUploader extends Component{
 
+  compressAndUpload(file){
+    console.log('Compressing file ... ');
+    console.log(file);
+    const compressor = new CanvasCompress({
+        type: CanvasCompress.MIME.JPEG,
+        width: 1000,
+        height: 1000,
+        quality: 0.95,
+    });
+    compressor.process(file[0]).then(({ source, result }) => {
+        // const { blob, width, height } = source;
+        const { blob, width, height } = result;
+        console.log('in process method')
+        console.log(blob);
+        this.uploadFile(blob);
+    });
+  }
+
   uploadFile(filesToUpload){
     const { updateUploadProgress, uploadFinish } = this.props;
     console.log(filesToUpload.length + ' files selected to upload');
     var formData = new FormData();
-    filesToUpload.forEach(
+
+    /*filesToUpload.forEach(
       (file) => {formData.append('file', file)}
-    )
+    )*/
+    formData.append('file', filesToUpload);
+
     // create a XHR to upload the files
     var request = new XMLHttpRequest();
     // progress callback is called frequently by the request handler during the upload
@@ -28,14 +51,16 @@ class FileUploader extends Component{
       }
     });
     // when uplaod is finished successfully
-    /*
-    request.upload.addEventListener('load', event =>{
-    });
-    */
     request.onreadystatechange = () => {
-        if (request.readyState === XMLHttpRequest.DONE && request.status === 200) {
-          console.log('onreadystatechage: ')
-          uploadFinish(true, request.responseText);
+        if (request.readyState === XMLHttpRequest.DONE){
+          if( request.status >= 200 && request.status < 300) {
+            console.log('upload status successful')
+            uploadFinish(true, request.responseText);
+            return
+          }
+          //there was an error: handle error
+          console.log('error in upload')
+          uploadFinish(false, request.responseText);
         }
       }
 
@@ -54,7 +79,7 @@ class FileUploader extends Component{
     const { selectFile, filesToUpload, uploadStarted, startUpload } = nextProps;
     if (filesToUpload.length > 0 && !uploadStarted){
       startUpload();
-      this.uploadFile(filesToUpload);
+      this.compressAndUpload(filesToUpload);
     }
   }
 
@@ -85,16 +110,18 @@ class FileUploader extends Component{
           {filesToUpload.map(
             (item, index) => (
               <div key={index}>
+                {/*
                 <br></br>
                 <a href={item.preview}>
                 <img src={item.preview} style={{width:"175pt"}} alt=""></img>
                 </a>
+                */}
               </div>
           ))}
         </div>
         <hr></hr>
         The link to uploaded file:
-        <img src={'/'+linkToSrc} style={{width: '200pt'}}></img>
+        <img src={linkToSrc} style={{width: '200pt'}}></img>
       </div>
     )
   }
