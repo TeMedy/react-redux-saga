@@ -1,9 +1,9 @@
-import { SELECT_FILE, START_UPLOAD} from './actions'
-import { UPDATE_UPLOAD_PROGRESS } from './actions'
-import { UPLOAD_FINISH } from './actions'
+import * as Actions from './actions'
 
 const initialState = {
+  selectedFiles: [],
   filesToUpload: [],
+  compressing: false,
   uploadStarted: false,
   uploadDone: false,
   uploadSuccessful: false,
@@ -14,28 +14,40 @@ const initialState = {
 
 export const fileState = (state = initialState, action) => {
   switch (action.type){
-    case SELECT_FILE:
+    case Actions.SELECT_FILE:
       return {
         ...state,
-        filesToUpload: action.files,
+        selectedFiles: action.files,
         uploadStarted: false,
         uploadSuccessful: false,
         uploadError: false
       };
-    case START_UPLOAD:
+    case Actions.START_COMPRESSION:
       return {
         ...state,
+        compressing: true
+      }
+    case Actions.END_COMPRESSION:
+      return {
+        ...state,
+        compressing: false
+      }
+    case Actions.START_UPLOAD:
+      return {
+        ...state,
+        filesToUpload: action.files,
         uploadStarted: true,
         uploadSuccessful: false,
         uploadError: false,
         uploadProgress: 0,
       }
-    case UPDATE_UPLOAD_PROGRESS:
+    case Actions.UPDATE_UPLOAD_PROGRESS:
+    console.log('progress in reducer: ' + action.progress);
       return {
         ...state,
         uploadProgress: action.progress,
       }
-    case UPLOAD_FINISH:
+    case Actions.END_UPLOAD:
       return {
         ...state,
         filesToUpload: [],
