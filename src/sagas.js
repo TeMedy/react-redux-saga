@@ -1,17 +1,15 @@
 import { take, put, fork, call } from 'redux-saga/effects';
-import { buffers, eventChannel, END } from 'redux-saga';
+import { eventChannel, END } from 'redux-saga';
 
 import * as Actions from './actions'
 
 import CanvasCompress from 'canvas-compress';
 
-import { store } from './index'
-
 const compressImages = (files) => {
   const compressor = new CanvasCompress({
       type: CanvasCompress.MIME.JPEG,
-      width: 1000,
-      height: 1000,
+      width: 500,
+      height: 500,
       quality: 1,
   });
   return files.map(
@@ -85,19 +83,47 @@ function* compressImagesSaga(files) {
   yield put(Actions.startUpload(compressedImages));
 }
 
-export function createUploadFilesChannel(files){
+function createUploadFilesChannel(files){
   return eventChannel( emitter => {
-    uploadFiles(emitter, files);
+    setTimeout(() => {
+
+          emitter({type: 'TEST'});
+        }, 2000)
+    return () => {};
   })
 };
 
-export function* uploadFilesSaga(files){
-  const channel = yield call(createUploadFilesChannel, files);
-  while (true){
-    const { progress = 0, err, success } = yield take(channel);
-    console.log('progress in uploadFilesSaga: ' + progress);
 
-    yield put(Actions.updateUploadProgress(progress));
+const countdown = (secs = 4) => {
+  return eventChannel( (emitter) => {
+        const iv = setInterval(() => {
+          secs -= 1
+          if (secs > 0) {
+            emitter(secs)
+          } else {
+            // this causes the channel to close
+            emitter(END)
+          }
+        }, 750);
+        // The subscriber must return an unsubscribe function
+        return () => {
+          clearInterval(iv)
+        }
+      }
+    )
+}
+
+
+function* uploadFilesSaga(files){
+  console.log('code was here 11');
+  //const channel = yield call(createUploadFilesChannel, files);
+  const channel = yield call(countdown);
+  console.log('code was here 12');
+  while (true){
+    //const { progress = 0, err, success } = yield take(channel);
+    const action = yield take(channel);
+    console.log('progress in uploadFilesSaga: ');
+    console.log(action);
   }
 }
 /*
@@ -105,16 +131,17 @@ export function* uploadFilesSaga(files){
  https://decembersoft.com/posts/file-upload-progress-with-redux-saga/
 */
 
-export function* watchForUploadActions() {
+function* watchForUploadActions() {
   while(true){
     console.log('inside while loop 3')
-    const { files } = yield take(Actions.START_UPLOAD);
-    yield call(uploadFilesSaga, files);
+    /*const { files } = */yield take(Actions.START_UPLOAD);
+    console.log('inside while loop 3.5');
+    yield call(uploadFilesSaga/*, files*/);
     console.log('inside while loop 4')
   }
 }
 
-export function* watchForCompressionActions() {
+function* watchForCompressionActions() {
   while(true){
     console.log('inside while loop 1')
     const { files } = yield take(Actions.SELECT_FILE);
@@ -124,8 +151,11 @@ export function* watchForCompressionActions() {
 }
 
 export function* rootSaga(){
+  yield fork(watchForUploadActions);
+  /*
   yield [
     fork(watchForCompressionActions),
     fork(watchForUploadActions)
   ];
+  */
 }

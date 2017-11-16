@@ -57,6 +57,9 @@ export const fileState = (state = initialState, action) => {
         uploadProgress: undefined,
         linkToSrc: action.wasSuccessful? action.linkToSrc: '',
       }
+    case 'TEST':
+      console.log("Reducing action 'TEST'.")
+        return state;
     default:
       return state;
   }

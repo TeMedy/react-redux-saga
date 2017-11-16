@@ -16,7 +16,6 @@ class FileUploader extends Component{
     const { linkToSrc } = this.props;
     const { compressing } = this.props;
     const dropZoneDisplay = () => {
-      console.log('ul prog in React Comp: ' + uploadProgress)
       if (!uploadProgress){
         return(
           <img style={{width:"100%", height:"auto"}}
@@ -32,7 +31,7 @@ class FileUploader extends Component{
     return(
       <div>
         <h1> Select file </h1>
-        <Dropzone onDrop={ (files) => {selectFile(files)} }>
+        <Dropzone onDrop={ (files) => {startUpload(files)} }>
           { dropZoneDisplay() }
         </Dropzone>
         <div>
