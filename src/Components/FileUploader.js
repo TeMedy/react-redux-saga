@@ -31,7 +31,7 @@ class FileUploader extends Component{
     return(
       <div>
         <h1> Select file </h1>
-        <Dropzone onDrop={ (files) => {startUpload(files)} }>
+        <Dropzone onDrop={ (files) => {selectFile(files)} }>
           { dropZoneDisplay() }
         </Dropzone>
         <div>
@@ -56,7 +56,6 @@ class FileUploader extends Component{
     )
   }
 }
-
 
 const mapStateToProps = (state) => {
   return{
